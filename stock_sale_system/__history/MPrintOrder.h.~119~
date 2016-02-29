@@ -1,0 +1,152 @@
+//---------------------------------------------------------------------------
+
+#ifndef MPrintOrderH
+#define MPrintOrderH
+//---------------------------------------------------------------------------
+#include <System.Classes.hpp>
+#include <Vcl.Controls.hpp>
+#include <Vcl.StdCtrls.hpp>
+#include <Vcl.Forms.hpp>
+#include "DBAccess.hpp"
+#include "MyAccess.hpp"
+#include <Data.DB.hpp>
+#include "MemDS.hpp"
+#include <Vcl.ComCtrls.hpp>
+#include <Vcl.Grids.hpp>
+#include <Vcl.ExtCtrls.hpp>
+#include <Vcl.DBCtrls.hpp>
+#include <Vcl.Mask.hpp>
+#include "frxClass.hpp"
+#include <Data.Win.ADODB.hpp>
+#include <Vcl.Buttons.hpp>
+#include "frxDBSet.hpp"
+//---------------------------------------------------------------------------
+class TPrintOrder : public TForm
+{
+__published:	// IDE-managed Components
+	TEdit *CompanyName;
+	TLabel *Label1;
+	TLabel *Label2;
+	TEdit *Store;
+	TMyQuery *Qry;
+	TLabel *Label3;
+	TEdit *OrderType;
+	TLabel *Label4;
+	TLabel *Label5;
+	TDateTimePicker *SendOrderTime;
+	TDateTimePicker *ReachOrderTime;
+	TStringGrid *InputGrid;
+	TLabel *Label6;
+	TEdit *OperatorName;
+	TTimer *Timer1;
+	TBitBtn *BtnPrint;
+	TfrxReport *frxReport;
+	TfrxDBDataset *frxTitleData;
+	TfrxDBDataset *frxDetailData;
+	TMyCommand *Cmd;
+	TMyQuery *MyQuery1;
+	TMyQuery *MyQuery2;
+	TMyQuery *QryDetail;
+	TBitBtn *BitBtn1;
+	TCheckBox *chk_default_printer;
+	TBitBtn *BitBtn2;
+	TBitBtn *BitBtn3;
+	TBitBtn *BitBtn4;
+	TEdit *will_add;
+	TLabel *Label7;
+	TPanel *Panel1;
+	TPanel *Panel2;
+	TEdit *edit;
+	TLabel *Label8;
+	TBitBtn *BitBtn5;
+	TLabel *message;
+	TBitBtn *BitBtn6;
+	TBitBtn *BitBtn7;
+	TLabel *Label9;
+	TLabel *Label10;
+	TBitBtn *BitBtn8;
+	TPanel *Panel3;
+	TEdit *Edit1;
+	TLabel *Label11;
+	TLabel *Label12;
+	TStringGrid *StringGrid1;
+	TCheckBox *auto_next;
+	TLabel *Label13;
+	TLabel *Label14;
+	TEdit *Edit2;
+	TEdit *Edit3;
+	TPanel *Panel4;
+	TBitBtn *BitBtn9;
+	TMemo *Memo1;
+	TButton *Button3;
+	TButton *Button4;
+	TButton *Button5;
+	TCheckBox *auto_fill;
+	TCheckBox *strong_insert;
+	TButton *Button2;
+	void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
+	void __fastcall FormCreate(TObject *Sender);
+	void __fastcall CompanyNameClick(TObject *Sender);
+	void __fastcall FormShow(TObject *Sender);
+	void __fastcall StoreClick(TObject *Sender);
+	void __fastcall OrderTypeClick(TObject *Sender);
+	void __fastcall OrderTypeDblClick(TObject *Sender);
+	void __fastcall StoreDblClick(TObject *Sender);
+	void __fastcall CompanyNameChange(TObject *Sender);
+	void __fastcall Timer1Timer(TObject *Sender);
+	void __fastcall InputGridSelectCell(TObject *Sender, int ACol, int ARow, bool &CanSelect);
+	void __fastcall ReachOrderTimeChange(TObject *Sender);
+	void __fastcall InputGridKeyPress(TObject *Sender, System::WideChar &Key);
+	void __fastcall BtnPrintClick(TObject *Sender);
+	void __fastcall frxReportGetValue(const UnicodeString VarName, Variant &Value);
+	void __fastcall BitBtn1Click(TObject *Sender);
+	void __fastcall BitBtn2Click(TObject *Sender);
+	void __fastcall BitBtn3Click(TObject *Sender);
+	void __fastcall BitBtn4Click(TObject *Sender);
+	void __fastcall BitBtn5Click(TObject *Sender);
+	void __fastcall InputGridKeyDown(TObject *Sender, WORD &Key, TShiftState Shift);
+	void __fastcall BitBtn6Click(TObject *Sender);
+	void __fastcall BitBtn8Click(TObject *Sender);
+	void __fastcall BitBtn9Click(TObject *Sender);
+	void __fastcall Button3Click(TObject *Sender);
+	void __fastcall Button4Click(TObject *Sender);
+	void __fastcall Button5Click(TObject *Sender);
+	void __fastcall Edit1KeyPress(TObject *Sender, System::WideChar &Key);
+	void __fastcall will_addKeyPress(TObject *Sender, System::WideChar &Key);
+	void __fastcall will_addKeyDown(TObject *Sender, WORD &Key, TShiftState Shift);
+	void __fastcall CompanyNameKeyDown(TObject *Sender, WORD &Key, TShiftState Shift);
+	void __fastcall StoreKeyDown(TObject *Sender, WORD &Key, TShiftState Shift);
+	void __fastcall OrderTypeKeyDown(TObject *Sender, WORD &Key, TShiftState Shift);
+
+
+
+
+
+
+
+private:	// User declarations
+public:		// User declarations
+	AnsiString temp_customer_name;
+	AnsiString temp_customer_name;
+	AnsiString temp_customer_name;
+	int TempNumberOrderType;
+	int TempNumberStore;
+	AnsiString CurrentMonth;
+	AnsiString year_month_id;
+	AnsiString company_id;
+	AnsiString store_id;
+	AnsiString order_type_id;
+	AnsiString reach_order_date;
+	AnsiString send_order_date;
+	AnsiString created_at;
+	bool your_input_is_printed_or_previewed;
+	TBitBtn *btn[50];
+	int btn_num;
+	void __fastcall BnClick(TObject *Sender);
+	TfrxReport* __fastcall printORshow();
+	__fastcall TPrintOrder(TComponent* Owner);
+};
+//---------------------------------------------------------------------------
+extern PACKAGE TPrintOrder *PrintOrder;
+//---------------------------------------------------------------------------
+#endif

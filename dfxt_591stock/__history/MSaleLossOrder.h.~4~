@@ -1,0 +1,23 @@
+//---------------------------------------------------------------------------
+
+#ifndef MSaleLossOrderH
+#define MSaleLossOrderH
+//---------------------------------------------------------------------------
+#include <System.Classes.hpp>
+#include <Vcl.Controls.hpp>
+#include <Vcl.StdCtrls.hpp>
+#include <Vcl.Forms.hpp>
+//---------------------------------------------------------------------------
+class TSaleLossOrder : public TForm
+{
+__published:	// IDE-managed Components
+private:	// User declarations
+	int TypeDetailPurchase;
+public:		// User declarations
+	__fastcall TSaleLossOrder(TComponent* Owner);
+
+};
+//---------------------------------------------------------------------------
+extern PACKAGE TSaleLossOrder *SaleLossOrder;
+//---------------------------------------------------------------------------
+#endif

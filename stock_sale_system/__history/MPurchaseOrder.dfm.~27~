@@ -1,0 +1,124 @@
+﻿object PurchaseOrder: TPurchaseOrder
+  Left = 350
+  Top = 20
+  Caption = #29289#21697#36827#20179
+  ClientHeight = 572
+  ClientWidth = 660
+  Color = clSkyBlue
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  FormStyle = fsMDIChild
+  OldCreateOrder = False
+  Position = poDesigned
+  Visible = True
+  OnClose = FormClose
+  OnCreate = FormCreate
+  OnShow = FormShow
+  PixelsPerInch = 96
+  TextHeight = 13
+  object 进仓日期: TLabel
+    Left = 166
+    Top = 24
+    Width = 48
+    Height = 13
+    Caption = #36827#20179#26085#26399
+  end
+  object Label1: TLabel
+    Left = 24
+    Top = 24
+    Width = 24
+    Height = 13
+    Caption = #20080#33258
+  end
+  object Label2: TLabel
+    Left = 526
+    Top = 175
+    Width = 126
+    Height = 66
+    AutoSize = False
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clRed
+    Font.Height = -20
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
+  end
+  object DateTimePicker1: TDateTimePicker
+    Left = 220
+    Top = 24
+    Width = 113
+    Height = 21
+    Date = 42300.982974155090000000
+    Time = 42300.982974155090000000
+    ImeName = #20013#25991'('#31616#20307') - '#25628#29399#25340#38899#36755#20837#27861
+    TabOrder = 0
+  end
+  object FromName: TEdit
+    Left = 54
+    Top = 21
+    Width = 106
+    Height = 21
+    ImeName = #20013#25991'('#31616#20307') - '#25628#29399#25340#38899#36755#20837#27861
+    TabOrder = 1
+    OnChange = FromNameChange
+    OnClick = FromNameClick
+  end
+  object StringGrid1: TStringGrid
+    Left = 24
+    Top = 48
+    Width = 481
+    Height = 715
+    ColCount = 7
+    Enabled = False
+    RowCount = 100
+    Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goDrawFocusSelected, goRowSizing, goColSizing, goRowMoving, goColMoving, goEditing, goTabs]
+    TabOrder = 2
+    OnSelectCell = StringGrid1SelectCell
+  end
+  object BitBtn1: TBitBtn
+    Left = 526
+    Top = 80
+    Width = 75
+    Height = 25
+    Caption = #20837#24211
+    Enabled = False
+    TabOrder = 3
+    OnClick = BitBtn1Click
+  end
+  object auto_next: TCheckBox
+    Left = 392
+    Top = 8
+    Width = 97
+    Height = 17
+    Caption = #33258#21160#25442#34892
+    TabOrder = 4
+  end
+  object Button1: TButton
+    Left = 526
+    Top = 128
+    Width = 75
+    Height = 25
+    Caption = #21512#35745
+    TabOrder = 5
+    OnClick = Button1Click
+  end
+  object Qry: TMyQuery
+    Connection = MainForm.Connection
+    SQL.Strings = (
+      'select * from products')
+    Left = 568
+    Top = 8
+  end
+  object Cmd: TMyCommand
+    Connection = MainForm.Connection
+    Left = 520
+  end
+  object Timer1: TTimer
+    Interval = 500
+    OnTimer = Timer1Timer
+    Left = 472
+  end
+end

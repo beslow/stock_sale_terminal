@@ -1,0 +1,21 @@
+//---------------------------------------------------------------------------
+
+#ifndef MLoginH
+#define MLoginH
+//---------------------------------------------------------------------------
+#include <System.Classes.hpp>
+#include <Vcl.Controls.hpp>
+#include <Vcl.StdCtrls.hpp>
+#include <Vcl.Forms.hpp>
+//---------------------------------------------------------------------------
+class TLogin : public TForm
+{
+__published:	// IDE-managed Components
+private:	// User declarations
+public:		// User declarations
+	__fastcall TLogin(TComponent* Owner);
+};
+//---------------------------------------------------------------------------
+extern PACKAGE TLogin *Login;
+//---------------------------------------------------------------------------
+#endif

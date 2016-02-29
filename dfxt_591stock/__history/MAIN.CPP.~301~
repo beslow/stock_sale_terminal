@@ -1,0 +1,345 @@
+//---------------------------------------------------------------------------
+#include <vcl.h>
+#pragma hdrstop
+
+#include "Main.h"
+#include "MDatabaseInfo.h"
+#include "MLogin.h"
+//---------------------------------------------------------------------------
+#pragma link "DBAccess"
+#pragma link "MyAccess"
+#pragma resource "*.dfm"
+TMainForm *MainForm;
+TPrintOrder* PrintOrder;
+TPurchaseOrder* PurchaseOrder;
+TSaleLossOrder* SaleLossOrder;
+TStorageLossOrder* StorageLossOrder;
+//---------------------------------------------------------------------------
+
+__fastcall TMainForm::TMainForm(TComponent *Owner)
+	: TForm(Owner)
+{
+//	ParentId = 1;
+//	OperatorId = "1";
+//	OperatorName = "小朋";
+
+}
+//---------------------------------------------------------------------------
+//显示数据库设定Form
+void __fastcall TMainForm::N2Click(TObject *Sender)
+{
+	TDatabaseInfo* DatabaseInfoForm;
+	DatabaseInfoForm = new TDatabaseInfo(this);
+	DatabaseInfoForm->Show();
+}
+//---------------------------------------------------------------------------
+
+
+void __fastcall TMainForm::FormCreate(TObject *Sender)
+{
+	TLogin* Login = new TLogin(Application);
+	Login->ShowModal();
+	if(!login_success) {
+        Application->Terminate();
+	} else {
+     	Login->Free();
+    }
+
+	Connection->Close();
+	TIniFile* regKey;
+	AnsiString ExePath=ExtractFilePath(ParamStr(0));
+	regKey=new TIniFile(ExePath+"database.ini");
+	Connection->Server = regKey->ReadString("databaseinfo","server",ExePath);
+	Connection->Database = regKey->ReadString("databaseinfo","databasename",ExePath);
+	Connection->Username = regKey->ReadString("databaseinfo","user",ExePath);
+	Connection->Password = regKey->ReadString("databaseinfo","password",ExePath);
+	Connection->Port = regKey->ReadString("databaseinfo","port",ExePath).ToInt();
+	AnsiString temp =  regKey->ReadString("select_pane_info","name",ExePath);
+	select_panel_name = new char[256];
+	strcpy(select_panel_name,temp.c_str());
+	delete regKey;
+	Connection->Connect();
+
+
+}
+//---------------------------------------------------------------------------
+
+//显示打印单据Form
+void __fastcall TMainForm::N3Click(TObject *Sender)
+{
+	if(!ExistForm("TPrintOrder")) {
+		PrintOrder = new TPrintOrder(this);
+		PrintOrder->Show();
+	}
+}
+//---------------------------------------------------------------------------
+
+bool __fastcall TMainForm::ExistForm(AnsiString formClassType)
+{
+	for(int i=0;i<this->MDIChildCount;i++)
+	{
+		if(this->MDIChildren[i]->ClassName()==formClassType)
+		{
+            HWND tempHWND=NULL;
+            tempHWND=FindWindowA(formClassType.c_str(),NULL);
+            if(tempHWND!=NULL)
+            {
+                SendMessageA(tempHWND,WM_SYSCOMMAND,SC_MAXIMIZE,0);
+            }
+            return True;
+        }
+	}
+    return False;
+}
+
+//获得面板发来的消息
+void __fastcall TMainForm::GetData(TWMCopyData &Msg)
+{
+    COPYDATASTRUCT *cds;
+	char* DataBuf;
+    cds=(COPYDATASTRUCT*)Msg.CopyDataStruct;
+    DataBuf=new char[1000];
+	memset(DataBuf,0,1000);
+    CopyMemory(DataBuf,cds->lpData,cds->cbData);
+	AnsiString Str=AnsiString(DataBuf);
+	int p=Str.Pos(")");
+	Str=Str.SubString(p+1,Str.Length()-p);
+	HWND wnd=GetForegroundWindow();
+	//HWND wnd=FindWindowA(NULL,"ShengXingSystem");
+	//HWND wnd = Handle;
+	DWORD idAttach = GetWindowThreadProcessId(wnd,NULL);
+//	ShowMessage("555");
+	GUITHREADINFO gi;
+	gi.cbSize = sizeof(GUITHREADINFO);
+	if ( !GetGUIThreadInfo(idAttach, &gi) )
+		ShowMessage("error");
+
+	wnd = gi.hwndFocus;
+
+	AnsiString TempClassName =(AnsiString)FindControl(wnd)->ClassName();
+	AnsiString TempName = (AnsiString)FindControl(wnd)->Name;
+	Boolean MainCanGo = true;
+	//如果是入库单事件发来的请求
+	if (TempName == "FromName") {
+		MainCanGo = false;
+		TEdit* edit;
+		edit = (TEdit*)FindControl(wnd);
+		edit->Text = Str;
+	} else if (TempName == "StringGrid1") {
+        MainCanGo = false;
+		PurchaseOrder->StringGrid1->Cells[2][PurchaseOrder->StringGrid1->Row] = Str;
+		PurchaseOrder->Qry->Close();
+		PurchaseOrder->Qry->SQL->Clear();
+		AnsiString sql = "";
+		sql += " select true_spec  from purchase_prices";
+		sql += " left join products on products.id = purchase_prices.product_id";
+		sql += " where 1 = 1";
+		sql += " and products.chinese_name = '" + Str + "'";
+		sql += " and purchase_prices.is_used = 1";
+		sql += " and purchase_prices.supplier_id = " + AnsiString(ParentId);
+		sql += " and purchase_prices.seller_id = " + AnsiString(PurchaseOrder->SellerId);
+		sql += " order by purchase_prices.print_times desc";
+		PurchaseOrder->Qry->SQL->Add(sql);
+		PurchaseOrder->Qry->Open();
+		if(PurchaseOrder->Qry->RecordCount == 1){
+			PurchaseOrder->Qry->First();
+			PurchaseOrder->StringGrid1->Cells[5][PurchaseOrder->StringGrid1->Row] = PurchaseOrder->Qry->FieldByName("true_spec")->AsString;
+		} else {
+			ShowMessage("进货价格表中 " + Str +" 这个品项重复！");
+		}
+		if(PurchaseOrder->auto_next->Checked) PurchaseOrder->StringGrid1->Row++;
+	} else if(TempName == "SLSellerName") {
+		MainCanGo = false;
+       	TEdit* edit;
+		edit = (TEdit*)FindControl(wnd);
+		edit->Text = Str;
+	} else if (TempName == "StorageLossStringGrid") {
+		MainCanGo = false;
+		StorageLossOrder->StorageLossStringGrid->Cells[2][StorageLossOrder->StorageLossStringGrid->Row] = Str;
+		StorageLossOrder->Qry->Close();
+		StorageLossOrder->Qry->SQL->Clear();
+		AnsiString sql = "";
+		sql += " select true_spec  from purchase_prices";
+		sql += " left join products on products.id = purchase_prices.product_id";
+		sql += " where 1 = 1";
+		sql += " and products.chinese_name = '" + Str + "'";
+		sql += " and purchase_prices.is_used = 1";
+		sql += " and purchase_prices.supplier_id = " + AnsiString(ParentId);
+		sql += " and purchase_prices.seller_id = " + AnsiString(StorageLossOrder->SellerId);
+		sql += " order by purchase_prices.print_times desc";
+		StorageLossOrder->Qry->SQL->Add(sql);
+		StorageLossOrder->Qry->Open();
+		if(StorageLossOrder->Qry->RecordCount == 1){
+			StorageLossOrder->Qry->First();
+			StorageLossOrder->StorageLossStringGrid->Cells[4][StorageLossOrder->StorageLossStringGrid->Row] = StorageLossOrder->Qry->FieldByName("true_spec")->AsString;
+		} else {
+			ShowMessage("进货价格表中 " + Str +" 这个品项重复！");
+		}
+		if(StorageLossOrder->auto_next->Checked) StorageLossOrder->StorageLossStringGrid->Row++;
+	}
+	if(MainCanGo){
+	if(TempClassName == "TEdit") {
+		TEdit* edit;
+		edit = (TEdit*)FindControl(wnd);
+		edit->Text = Str;
+		if(TempName == "CompanyName") {
+			//如果该单位只有一个门店，默认自动显示到界面
+			PrintOrder->Qry->Close();
+			PrintOrder->Qry->SQL->Clear();
+			AnsiString StrSQL = "SELECT stores.name AS FName FROM stores ";
+			StrSQL += " LEFT JOIN companies ON stores.company_id ";
+			StrSQL += " = companies.id WHERE companies.simple_name = ";
+			StrSQL += "\"" + Str + "\"";
+			PrintOrder->Qry->SQL->Add(StrSQL);
+			PrintOrder->Qry->Open();
+			if(PrintOrder->Qry->RecordCount == 1){
+				PrintOrder->Qry->First();
+				PrintOrder->Store->Text = PrintOrder->Qry->FieldByName("FName")->AsString;
+			}else{
+				PrintOrder->Store->Text = "";
+			}
+			//如果该单位只有一个单据类型，默认自动显示到界面
+			PrintOrder->Qry->Close();
+			PrintOrder->Qry->SQL->Clear();
+			StrSQL = "SELECT order_types.name AS FName FROM order_types ";
+			StrSQL += " LEFT JOIN companies ON order_types.customer_id ";
+			StrSQL += " = companies.id WHERE order_types.supplier_id = "+ AnsiString(ParentId) +" and companies.simple_name like ";
+			StrSQL += "\"%" + Str + "%\"";
+			PrintOrder->Qry->SQL->Add(StrSQL);
+			PrintOrder->Qry->Open();
+			if(PrintOrder->Qry->RecordCount == 1){
+				PrintOrder->Qry->First();
+				PrintOrder->OrderType->Text = PrintOrder->Qry->FieldByName("FName")->AsString;
+			}else{
+				PrintOrder->OrderType->Text = "";
+			}
+		}
+	} else if (TempClassName == "TStringGrid") {
+//		TStringGrid* TargetInputGrid;
+//		TargetInputGrid=(TStringGrid*)FindControl(wnd);
+		PrintOrder->InputGrid->Cells[2][PrintOrder->InputGrid->Row] = Str;
+		PrintOrder->Qry->Close();
+		PrintOrder->Qry->SQL->Clear();
+		AnsiString StrSQL = " SELECT prices.* ";
+		StrSQL += " FROM prices ";
+		StrSQL += " LEFT JOIN products ON products.id = prices.product_id ";
+		StrSQL += " LEFT JOIN year_months ON prices.year_month_id = year_months.id ";
+		StrSQL += " LEFT JOIN companies ON prices.customer_id = companies.id ";
+		StrSQL += " WHERE 1 = 1 AND prices.is_used = 1 ";
+		StrSQL += " AND prices.supplier_id = " + AnsiString(ParentId);
+		StrSQL += " AND companies.simple_name = \""+ PrintOrder->CompanyName->Text.Trim() +"\" ";
+		StrSQL += " AND year_months.val = \""+ PrintOrder->CurrentMonth +"\" ";
+		StrSQL += " AND products.chinese_name = \"" + Str + "\" ";
+		PrintOrder->Qry->SQL->Add(StrSQL);
+		PrintOrder->Qry->Open();
+		if(PrintOrder->Qry->RecordCount == 1){
+			PrintOrder->Qry->First();
+			PrintOrder->InputGrid->Cells[5][PrintOrder->InputGrid->Row] = PrintOrder->Qry->FieldByName("true_spec")->AsString;
+			AnsiString temp_price = PrintOrder->Qry->FieldByName("price")->AsString;
+			PrintOrder->InputGrid->Cells[6][PrintOrder->InputGrid->Row] = temp_price==AnsiString("0")?AnsiString(""):temp_price;
+		} else {
+			ShowMessage("价格表中 " + Str +" 这个品项重复！");
+		}
+		if(PrintOrder->auto_next->Checked) PrintOrder->InputGrid->Row++;
+	}
+	}
+//	else if(PrintOrderForm->strngrd->Col==2)
+//	{
+//		PrintOrderForm->strngrd->Cells[3][PrintOrderForm->strngrd->Row]=Str;
+//		qry->Close();
+//		qry->SQL->Clear();
+//		unsigned short y,m,d;
+//		StrToDate(PrintOrderForm->edt_date->Text.Trim()).DecodeDate(&y,&m,&d);
+//		AnsiString strMonth=IntToStr(y)+"年"+IntToStr(m)+"月";
+//		AnsiString StrSql="SELECT PriceProductID productid,PriceProductSpeci speci,Price price FROM c_Price WHERE 1=1 ";
+//		StrSql+="AND PriceMonth='"+strMonth+"' AND PriceCusNo='"+PrintOrderForm->m_strCusNo;
+//		StrSql+="' AND REPLACE(PriceProductName,' ','')='"+Str.Trim()+"'";
+//		qry->SQL->Add(StrSql);   //加入SQL程序码
+//		qry->Open();
+//		PrintOrderForm->strngrd->Cells[2][PrintOrderForm->strngrd->Row]=qry->FieldByName("productid")->AsString.Trim();
+//		PrintOrderForm->strngrd->Cells[6][PrintOrderForm->strngrd->Row]=qry->FieldByName("speci")->AsString.Trim();
+//		PrintOrderForm->strngrd->Cells[7][PrintOrderForm->strngrd->Row]=qry->FieldByName("price")->AsString.Trim();
+//	}else if(PrintOrderForm->strngrd->Col==3)
+//	{
+//		if(Str.Trim()=="个")
+//		{
+//			AnsiString v=PrintOrderForm->strngrd->Cells[3][PrintOrderForm->strngrd->Row];
+//			PrintOrderForm->strngrd->Cells[3][PrintOrderForm->strngrd->Row]=v+Str;
+//		}
+//		else
+//			PrintOrderForm->strngrd->Cells[3][PrintOrderForm->strngrd->Row]=Str;
+//	}else if(PrintOrderForm->strngrd->Col==4)
+//	{
+//		PrintOrderForm->strngrd->Cells[4][PrintOrderForm->strngrd->Row]=Str;
+//    }
+    delete[] DataBuf;
+    TForm::Dispatch(&Msg);
+}
+void __fastcall TMainForm::FormClose(TObject *Sender, TCloseAction &Action)
+{
+	HWND hwnd=FindWindowA(NULL,select_panel_name);
+	AnsiString str="close^";
+	COPYDATASTRUCT myCopyDATA;
+    myCopyDATA.cbData=str.Length();
+    myCopyDATA.lpData=str.c_str();
+    SendMessageA(hwnd,WM_COPYDATA,NULL,(LPARAM)&myCopyDATA);
+}
+//---------------------------------------------------------------------------
+
+
+
+
+
+void __fastcall TMainForm::N4Click(TObject *Sender)
+{
+	//关闭打印订货单Form
+	for(int i=0;i<this->MDIChildCount;i++)
+	{
+		if(this->MDIChildren[i]->ClassName()=="TPrintOrder")
+		{
+			this->MDIChildren[i]->Close();
+		}
+	}
+	if(!ExistForm("TPurchaseOrder")) {
+		PurchaseOrder = new TPurchaseOrder(this);
+		PurchaseOrder->Show();
+	}
+	//判断面板是否已经存在，不存在的话，打开它
+	HWND hwnd=FindWindowA(NULL,MainForm->select_panel_name);
+	if (hwnd == NULL) {
+		AnsiString ExePath = ExtractFilePath(ParamStr(0))+MainForm->select_panel_name+ ".exe";
+		WinExec(ExePath.c_str(),SW_SHOW);
+	}
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TMainForm::N5Click(TObject *Sender)
+{
+	if(!ExistForm("TStorageLossOrder")) {
+		StorageLossOrder = new TStorageLossOrder(this);
+		StorageLossOrder->Show();
+	}
+	//判断面板是否已经存在，不存在的话，打开它
+	HWND hwnd=FindWindowA(NULL,MainForm->select_panel_name);
+	if (hwnd == NULL) {
+		AnsiString ExePath = ExtractFilePath(ParamStr(0))+MainForm->select_panel_name+ ".exe";
+		WinExec(ExePath.c_str(),SW_SHOW);
+	}
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TMainForm::N6Click(TObject *Sender)
+{
+	if(!ExistForm("TSaleLossOrder")) {
+		SaleLossOrder = new TSaleLossOrder(this);
+		SaleLossOrder->Show();
+	}
+	//判断面板是否已经存在，不存在的话，打开它
+	HWND hwnd=FindWindowA(NULL,MainForm->select_panel_name);
+	if (hwnd == NULL) {
+		AnsiString ExePath = ExtractFilePath(ParamStr(0))+MainForm->select_panel_name+ ".exe";
+		WinExec(ExePath.c_str(),SW_SHOW);
+	}
+}
+//---------------------------------------------------------------------------
+

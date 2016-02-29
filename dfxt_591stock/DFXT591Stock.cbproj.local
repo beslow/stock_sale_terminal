@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899/12/30 00:00:00.000.921,D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\Unit1.h=D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\MPrintOrder.h</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.703,D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\Unit1.h=D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\MLogin.h</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.265,D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\Unit1.h=D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\MDatabaseInfo.h</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.250,D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\ChildWin.cpp=</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.328,D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\MDIAPP.cbproj=D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\ShengXingSystem.cbproj</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.265,D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\Unit1.dfm=D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\MDatabaseInfo.dfm</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.031,D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\about.cpp=</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.921,D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\Unit1.dfm=D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\MPrintOrder.dfm</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.453,D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\ShengXingSystem.cbproj=D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\ShengXingSystem.cbproj</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.703,D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\Unit1.dfm=D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\MLogin.dfm</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.437,=D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\Unit1.cpp</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.703,D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\Unit1.cpp=D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\MLogin.cpp</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.406,=D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\Unit1.cpp</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.921,D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\Unit1.cpp=D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\MPrintOrder.cpp</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.781,=D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\Unit1.cpp</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.265,D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\Unit1.cpp=D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\MDatabaseInfo.cpp</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.343,=D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\Unit1.cpp</Transaction>
+    <Transaction>2015/10/23 22:44:48.000.173,C:\Users\陈小朋\Desktop\qipeng\qipeng_system\StockSaleSystem.cbproj=C:\Users\陈小朋\Desktop\qipeng\qipeng_system\ShengXingSystem.cbproj</Transaction>
+    <Transaction>2015/10/23 22:50:31.000.446,=C:\Users\陈小朋\Desktop\qipeng\stock_sale_system\Unit1.cpp</Transaction>
+    <Transaction>2015/10/23 22:53:16.000.897,C:\Users\陈小朋\Desktop\qipeng\stock_sale_system\Unit1.h=C:\Users\陈小朋\Desktop\qipeng\stock_sale_system\MPurchaseOrder.h</Transaction>
+    <Transaction>2015/10/23 22:53:16.000.897,C:\Users\陈小朋\Desktop\qipeng\stock_sale_system\Unit1.dfm=C:\Users\陈小朋\Desktop\qipeng\stock_sale_system\MPurchaseOrder.dfm</Transaction>
+    <Transaction>2015/10/23 22:53:16.000.897,C:\Users\陈小朋\Desktop\qipeng\stock_sale_system\Unit1.cpp=C:\Users\陈小朋\Desktop\qipeng\stock_sale_system\MPurchaseOrder.cpp</Transaction>
+    <Transaction>2015/10/27 20:54:15.000.570,=C:\Users\陈小朋\Desktop\stock_sale\stock_sale_system\Unit1.cpp</Transaction>
+    <Transaction>2015/10/27 21:15:24.000.521,C:\Users\陈小朋\Desktop\stock_sale\stock_sale_system\MLossOrder.dfm=C:\Users\陈小朋\Desktop\stock_sale\stock_sale_system\Unit1.dfm</Transaction>
+    <Transaction>2015/10/27 21:15:24.000.521,C:\Users\陈小朋\Desktop\stock_sale\stock_sale_system\MLossOrder.h=C:\Users\陈小朋\Desktop\stock_sale\stock_sale_system\Unit1.h</Transaction>
+    <Transaction>2015/10/27 21:15:24.000.521,C:\Users\陈小朋\Desktop\stock_sale\stock_sale_system\MLossOrder.cpp=C:\Users\陈小朋\Desktop\stock_sale\stock_sale_system\Unit1.cpp</Transaction>
+    <Transaction>2015/10/27 21:45:13.000.720,=C:\Users\陈小朋\Desktop\stock_sale\stock_sale_system\Unit1.cpp</Transaction>
+    <Transaction>2015/10/27 21:51:12.000.255,C:\Users\陈小朋\Desktop\stock_sale\stock_sale_system\MSaleLossOrder.dfm=C:\Users\陈小朋\Desktop\stock_sale\stock_sale_system\Unit1.dfm</Transaction>
+    <Transaction>2015/10/27 21:51:12.000.255,C:\Users\陈小朋\Desktop\stock_sale\stock_sale_system\MSaleLossOrder.cpp=C:\Users\陈小朋\Desktop\stock_sale\stock_sale_system\Unit1.cpp</Transaction>
+    <Transaction>2015/10/27 21:51:12.000.255,C:\Users\陈小朋\Desktop\stock_sale\stock_sale_system\MSaleLossOrder.h=C:\Users\陈小朋\Desktop\stock_sale\stock_sale_system\Unit1.h</Transaction>
+    <Transaction>2015/10/27 22:05:42.000.210,C:\Users\陈小朋\Desktop\stock_sale\stock_sale_system\MStorageLossOrder.cpp=C:\Users\陈小朋\Desktop\stock_sale\stock_sale_system\MLossOrder.cpp</Transaction>
+    <Transaction>2015/10/27 22:05:42.000.210,C:\Users\陈小朋\Desktop\stock_sale\stock_sale_system\MStorageLossOrder.dfm=C:\Users\陈小朋\Desktop\stock_sale\stock_sale_system\MLossOrder.dfm</Transaction>
+    <Transaction>2015/10/27 22:05:42.000.210,C:\Users\陈小朋\Desktop\stock_sale\stock_sale_system\MStorageLossOrder.h=C:\Users\陈小朋\Desktop\stock_sale\stock_sale_system\MLossOrder.h</Transaction>
+    <Transaction>2015/12/02 16:34:34.000.954,C:\Users\陈小朋\Desktop\stock_sale\dfxt_591stock\StockSaleSystem.cbproj=C:\Users\陈小朋\Desktop\stock_sale\dfxt_591stock\DFXT591Stock.cbproj</Transaction>
+  </Transactions>
+</BorlandProject>

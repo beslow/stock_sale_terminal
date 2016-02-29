@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899/12/30 00:00:00.000.453,D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\ShengXingSystem.cbproj=D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\ShengXingSystem.cbproj</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.265,D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\MDatabaseInfo.cpp=D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\Unit1.cpp</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.921,D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\MPrintOrder.cpp=D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\Unit1.cpp</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.328,D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\ShengXingSystem.cbproj=D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\MDIAPP.cbproj</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.031,D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\about.cpp=</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.703,D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\MLogin.h=D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\Unit1.h</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.703,D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\MLogin.dfm=D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\Unit1.dfm</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.921,D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\MPrintOrder.dfm=D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\Unit1.dfm</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.250,D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\ChildWin.cpp=</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.437,=D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\Unit1.cpp</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.781,=D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\Unit1.cpp</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.265,D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\MDatabaseInfo.dfm=D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\Unit1.dfm</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.406,=D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\Unit1.cpp</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.265,D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\MDatabaseInfo.h=D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\Unit1.h</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.703,D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\MLogin.cpp=D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\Unit1.cpp</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.343,=D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\Unit1.cpp</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.921,D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\MPrintOrder.h=D:\My Documents\Embarcadero\Studio\Projects\shengxing_system\Unit1.h</Transaction>
+  </Transactions>
+</BorlandProject>

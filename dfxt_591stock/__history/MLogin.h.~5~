@@ -1,0 +1,36 @@
+//---------------------------------------------------------------------------
+
+#ifndef MLoginH
+#define MLoginH
+//---------------------------------------------------------------------------
+#include <System.Classes.hpp>
+#include <Vcl.Controls.hpp>
+#include <Vcl.StdCtrls.hpp>
+#include <Vcl.Forms.hpp>
+#include <Vcl.Buttons.hpp>
+#include "DBAccess.hpp"
+#include "MemDS.hpp"
+#include "MyAccess.hpp"
+#include <Data.DB.hpp>
+//---------------------------------------------------------------------------
+class TLogin : public TForm
+{
+__published:	// IDE-managed Components
+	TLabel *Label1;
+	TEdit *user_name_or_email;
+	TLabel *Label2;
+	TEdit *password;
+	TBitBtn *BitBtn1;
+	TLabel *Label3;
+	TMyConnection *my_con;
+	TMyQuery *my_qry;
+	void __fastcall BitBtn1Click(TObject *Sender);
+	void __fastcall FormCreate(TObject *Sender);
+private:	// User declarations
+public:		// User declarations
+	__fastcall TLogin(TComponent* Owner);
+};
+//---------------------------------------------------------------------------
+extern PACKAGE TLogin *Login;
+//---------------------------------------------------------------------------
+#endif

@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899/12/30 00:00:00.000.484,=D:\My Documents\Embarcadero\Studio\Projects\Unit2.cpp</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.048,D:\My Documents\Embarcadero\Studio\Projects\Unit2.cpp=D:\My Documents\Embarcadero\Studio\Projects\shengxing_keyboard\main.cpp</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.048,D:\My Documents\Embarcadero\Studio\Projects\Unit2.h=D:\My Documents\Embarcadero\Studio\Projects\shengxing_keyboard\main.h</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.876,=D:\My Documents\Embarcadero\Studio\Projects\Unit2.cpp</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.939,D:\My Documents\Embarcadero\Studio\Projects\Project3.cbproj=D:\My Documents\Embarcadero\Studio\Projects\shengxing_keyboard\ShengXingKeyboard.cbproj</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.814,D:\My Documents\Embarcadero\Studio\Projects\Project3PCH1.h=D:\My Documents\Embarcadero\Studio\Projects\shengxing_keyboard\keyboard.h</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.861,=D:\My Documents\Embarcadero\Studio\Projects\Project3PCH1.h</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.048,D:\My Documents\Embarcadero\Studio\Projects\Unit2.dfm=D:\My Documents\Embarcadero\Studio\Projects\shengxing_keyboard\main.dfm</Transaction>
+    <Transaction>1899/12/30 00:00:00.000.468,=D:\My Documents\Embarcadero\Studio\Projects\Project3PCH1.h</Transaction>
+  </Transactions>
+</BorlandProject>

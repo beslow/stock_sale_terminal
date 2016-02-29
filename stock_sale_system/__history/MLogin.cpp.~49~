@@ -1,0 +1,85 @@
+//---------------------------------------------------------------------------
+
+#include <vcl.h>
+#pragma hdrstop
+
+#include "MLogin.h"
+#include "Main.h"
+//---------------------------------------------------------------------------
+#pragma package(smart_init)
+#pragma link "DBAccess"
+#pragma link "MemDS"
+#pragma link "MyAccess"
+#pragma resource "*.dfm"
+TLogin *Login;
+//TMainForm *MainForm;
+//---------------------------------------------------------------------------
+__fastcall TLogin::TLogin(TComponent* Owner)
+	: TForm(Owner)
+{
+}
+//---------------------------------------------------------------------------
+void __fastcall TLogin::BitBtn1Click(TObject *Sender)
+{
+	AnsiString usr_email =  user_name_or_email->Text.Trim();
+	AnsiString password = terminal_password->Text.Trim();
+	AnsiString sql = " select id, user_name, terminal_password, company_id from users where user_name = '"+usr_email+"' ";
+	sql += " and terminal_password = '"+password+"' ";
+	sql += " union all ";
+	sql += " select id, user_name, terminal_password, company_id from users where email = '"+usr_email+"' ";
+	sql += " and terminal_password = '"+password+"' ";
+	my_qry->Close();
+	my_qry->SQL->Clear();
+	my_qry->SQL->Add(sql);
+	my_qry->Open();
+	my_qry->First();
+	if(my_qry->RecordCount==1) {
+		MainForm->login_success	= true;
+		MainForm->ParentId = my_qry->FieldByName("company_id")->AsInteger;
+		MainForm->OperatorId = my_qry->FieldByName("id")->AsInteger;
+		MainForm->OperatorName = my_qry->FieldByName("user_name")->AsString;
+		sql = "select full_name from companies where id = " + AnsiString(MainForm->ParentId);
+        my_qry->Close();
+		my_qry->SQL->Clear();
+		my_qry->SQL->Add(sql);
+		my_qry->Open();
+		my_qry->First();
+		MainForm->OperatorCompanyName = my_qry->FieldByName("full_name")->AsString;
+		ShowMessage(my_qry->FieldByName("full_name"));
+		this->Close();
+	} else {
+		MainForm->login_success = false;
+		message->Visible = false;
+		message->Caption = "用户名/邮箱或者密码有错误！";
+		message->Visible = true;
+    }
+}
+//---------------------------------------------------------------------------
+void __fastcall TLogin::FormCreate(TObject *Sender)
+{
+	my_con->Close();
+	TIniFile* regKey;
+	AnsiString ExePath=ExtractFilePath(ParamStr(0));
+	regKey=new TIniFile(ExePath+"database.ini");
+	my_con->Server = regKey->ReadString("databaseinfo","server",ExePath);
+	my_con->Database = regKey->ReadString("databaseinfo","databasename",ExePath);
+	my_con->Username = regKey->ReadString("databaseinfo","user",ExePath);
+	my_con->Password = regKey->ReadString("databaseinfo","password",ExePath);
+	my_con->Port = regKey->ReadString("databaseinfo","port",ExePath).ToInt();
+	AnsiString temp =  regKey->ReadString("select_pane_info","name",ExePath);
+	delete regKey;
+	my_con->Connect();
+}
+//---------------------------------------------------------------------------
+void __fastcall TLogin::FormClose(TObject *Sender, TCloseAction &Action)
+{
+	Action=caFree;
+}
+//---------------------------------------------------------------------------
+void __fastcall TLogin::terminal_passwordKeyPress(TObject *Sender, System::WideChar &Key)
+
+{
+	if(Key== VK_RETURN)  BitBtn1Click(Sender);
+}
+//---------------------------------------------------------------------------
+

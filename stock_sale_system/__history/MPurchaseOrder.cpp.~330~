@@ -1,0 +1,535 @@
+﻿//---------------------------------------------------------------------------
+
+#include <vcl.h>
+#pragma hdrstop
+
+#include "MPurchaseOrder.h"
+#include "Main.h"
+//---------------------------------------------------------------------------
+#pragma package(smart_init)
+#pragma link "DBAccess"
+#pragma link "MemDS"
+#pragma link "MyAccess"
+#pragma resource "*.dfm"
+TPurchaseOrder *PurchaseOrder;
+//---------------------------------------------------------------------------
+__fastcall TPurchaseOrder::TPurchaseOrder(TComponent* Owner)
+	: TForm(Owner)
+{
+}
+//---------------------------------------------------------------------------
+void __fastcall TPurchaseOrder::FormCreate(TObject *Sender)
+{
+	TypeDetailPurchase = 1;
+	SupplierId = MainForm->ParentId;
+	SellerId = 0;
+	//默认日期为当天
+	DateTimePicker1->Date = Now();
+	//StringGrid1
+	StringGrid1->Cells[1][0]="简写";
+	StringGrid1->Cells[2][0]="名称";
+	StringGrid1->Cells[3][0]="订量";
+	StringGrid1->Cells[4][0]="实际量";
+	StringGrid1->Cells[5][0]="规格";
+	StringGrid1->Cells[6][0]="价格";
+	StringGrid1->ColWidths[0]=30;
+	StringGrid1->ColWidths[2]=100;
+	for(int i=1;i<StringGrid1->RowCount;i++) {
+		StringGrid1->Cells[0][i]=i;
+	}
+	StringGrid1->ColWidths[2] = 40;
+	StringGrid1->ColWidths[3] = 40;
+	//默认可以继续操作
+	CanGo = true;
+	//查询数据库，获取仓库ID：storage_id
+	AnsiString user_id = MainForm->OperatorId;
+	AnsiString sql = "";
+	sql = "select store_id from users where id = " + user_id;
+	Qry->Close();
+	Qry->SQL->Clear();
+	Qry->SQL->Add(sql);
+	Qry->Open();
+	Qry->First();
+	int store_id = Qry->FieldByName("store_id")->AsInteger;
+	if(store_id == 0){
+		ShowMessage("当前登录用户没有权限管理任何一个仓库，请联系管理员！");
+        CanGo = false;
+	} else {
+		sql = "select id from storages where store_id = " + AnsiString(store_id);
+		Qry->Close();
+		Qry->SQL->Clear();
+		Qry->SQL->Add(sql);
+		Qry->Open();
+		if (Qry->RecordCount == 0) {
+			ShowMessage("当前登录用户可以管理的仓库不存在，请联系管理员！");
+			CanGo = false;
+		} else {
+			Qry->First();
+			StorageId = Qry->FieldByName("id")->AsInteger;
+        }
+	}
+}
+//---------------------------------------------------------------------------
+void __fastcall TPurchaseOrder::FormClose(TObject *Sender, TCloseAction &Action)
+{
+	HWND hwnd=FindWindowA(NULL,MainForm->select_panel_name);
+	AnsiString str="close^";
+	COPYDATASTRUCT myCopyDATA;
+	myCopyDATA.cbData=str.Length();
+	myCopyDATA.lpData=str.c_str();
+	SendMessageA(hwnd,WM_COPYDATA,NULL,(LPARAM)&myCopyDATA);
+	Action=caFree;
+}
+//---------------------------------------------------------------------------
+void __fastcall TPurchaseOrder::FormShow(TObject *Sender)
+{
+	AnsiString ExePath = ExtractFilePath(ParamStr(0))+MainForm->select_panel_name+ ".exe";
+    WinExec(ExePath.c_str(),SW_SHOW);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TPurchaseOrder::Timer1Timer(TObject *Sender)
+{
+	HWND hwnd=FindWindowA(NULL,MainForm->select_panel_name);
+	AnsiString str="pos^"+AnsiString(Left-300)+"^^"+AnsiString(Top+40);
+	COPYDATASTRUCT myCopyDATA;
+	myCopyDATA.cbData = str.Length();
+	myCopyDATA.lpData = str.c_str();
+	SendMessageA(hwnd,WM_COPYDATA,NULL,(LPARAM)&myCopyDATA);
+}
+//---------------------------------------------------------------------------
+
+
+void __fastcall TPurchaseOrder::FromNameClick(TObject *Sender)
+{
+	HWND hwnd=FindWindowA(NULL,MainForm->select_panel_name);
+	AnsiString str="sql^ SELECT name as FName FROM sellers where 1=1";
+	str += " and supplier_id = ";
+	str += MainForm->ParentId;
+	str += " and (delete_flag = 0 or delete_flag is null) ^^";
+	COPYDATASTRUCT myCopyDATA;
+	myCopyDATA.cbData = str.Length();
+	myCopyDATA.lpData = str.c_str();
+	SendMessageA(hwnd,WM_COPYDATA,NULL,(LPARAM)&myCopyDATA);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TPurchaseOrder::StringGrid1SelectCell(TObject *Sender, int ACol, int ARow,
+          bool &CanSelect)
+{
+	if (ACol == 2) {
+		HWND hwnd=FindWindowA(NULL,MainForm->select_panel_name);
+		AnsiString str="sql^ ";
+		COPYDATASTRUCT myCopyDATA;
+		if(StringGrid1->Cells[1][ARow].Trim() != "") {
+			str += " select products.chinese_name as FName";
+			str += " from products";
+			str += " left join purchase_prices on purchase_prices.product_id = products.id";
+			str += " where 1 = 1";
+			str += " and purchase_prices.seller_id = " + AnsiString(SellerId);
+			str += " and purchase_prices.is_used = 1";
+			str += " and purchase_prices.supplier_id = " + AnsiString(MainForm->ParentId);
+			str += " and products.simple_abc like \"%" + StringGrid1->Cells[1][ARow].Trim() + "%\" ";
+			str += " order by purchase_prices.print_times desc ";
+		} else {
+			str += " select '简写没有输入!' as FName";
+		}
+		str += " ^^";
+
+		myCopyDATA.cbData=str.Length();
+        myCopyDATA.lpData=str.c_str();
+		SendMessageA(hwnd,WM_COPYDATA,NULL,(LPARAM)&myCopyDATA);
+	}
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TPurchaseOrder::FromNameChange(TObject *Sender)
+{
+	if(FromName->Text.Trim() == ""){
+		StringGrid1->Enabled = false;
+		BitBtn1->Enabled = false;
+	} else {
+		StringGrid1->Enabled = true;
+		BitBtn1->Enabled = true;
+		Qry->Close();
+		Qry->SQL->Clear();
+		AnsiString sql = "select id from sellers where (delete_flag = 0 or delete_flag is null) and name = '" + FromName->Text.Trim() + "' and supplier_id = " + AnsiString(MainForm->ParentId);
+
+		Qry->SQL->Add(sql);
+		Qry->Open();
+		if (Qry->RecordCount == 0) {
+			ShowMessage("当前所填的物品来自不存在，请确认是否填错。");
+		} else {
+			Qry->First();
+			SellerId = Qry->FieldByName("id")->AsInteger;
+		}
+	}
+
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TPurchaseOrder::BitBtn1Click(TObject *Sender)
+{
+//	if(SellerId == 0) {
+//		ShowMessage("货品来源还没有选择");
+//		return;
+//	}
+
+	try
+	{
+		AnsiString sql = "";
+		//开始事务
+		Cmd->Connection->StartTransaction();
+
+		if(StorageId == 0){
+			ShowMessage("当前用户没有权限操作任何仓库，故不能进行相关的进货操作。");
+			sql = "Insert into `xxx`";
+			Cmd->SQL->Clear();
+			Cmd->SQL->Add(sql);
+			Cmd->Execute();
+		}
+		//生成purchase_orders
+		sql = "INSERT INTO `purchase_orders` (`storage_id`, `purchase_date`, `user_id`, `delete_flag`, `created_at`, `updated_at`, `supplier_id`, `seller_id`, `memo`) ";
+		sql += " VALUES ( ";
+		sql += AnsiString(StorageId) + ", ";
+		sql += " '" + DateTimePicker1->Date.DateString() + "', ";
+		sql += AnsiString(MainForm->OperatorId) + ", ";
+		sql += " 0, ";
+		sql += " '" + Now().DateString() + "', ";
+		sql += " '" + Now().DateString() + "', ";
+		sql += AnsiString(MainForm->ParentId) + ", ";
+		sql += " '" + Edit1->Text.Trim() + "' "
+		sql += AnsiString(SellerId) + ");";
+		Cmd->SQL->Clear();
+		Cmd->SQL->Add(sql);
+		Cmd->Execute();
+
+		AnsiString purchase_order_id = Cmd->InsertId;
+		//生成purchase_order_items
+		for(unsigned i=1;i<=StringGrid1->RowCount;i++){
+			if(StringGrid1->Cells[2][i].Trim()=="") continue;
+			AnsiString current_simple_abc = StringGrid1->Cells[1][i].Trim();
+			AnsiString current_chinese_name = StringGrid1->Cells[2][i].Trim();
+			AnsiString current_plan_weight = StringGrid1->Cells[3][i].Trim();
+			AnsiString current_real_weight = StringGrid1->Cells[4][i].Trim();
+			AnsiString current_true_spec = StringGrid1->Cells[5][i].Trim();
+			AnsiString current_purchase_price = StringGrid1->Cells[6][i].Trim();
+			float t_real_weight;
+			float t_purchase_price;
+			if(current_real_weight == "") {
+				ShowMessage("第"+AnsiString(i)+"行的到货量必须填写");
+				sql = "Insert into `xxx`";
+				Cmd->SQL->Clear();
+				Cmd->SQL->Add(sql);
+				Cmd->Execute();
+			}
+			if(current_purchase_price == "") {
+				ShowMessage("第"+AnsiString(i)+"行的价格必须填写");
+				sql = "Insert into `xxx`";
+				Cmd->SQL->Clear();
+				Cmd->SQL->Add(sql);
+				Cmd->Execute();
+			}
+			boolean cango = true;
+			if(!TryStrToFloat(current_real_weight, t_real_weight) ) {
+				ShowMessage("第"+AnsiString(i)+"行的到货量"+current_real_weight+"，请修改成数值型。");
+				cango = false;
+			}
+			if(!TryStrToFloat(current_purchase_price, t_purchase_price)) {
+				ShowMessage("第"+AnsiString(i)+"行的价格"+current_purchase_price+"，请修改成数值型。");
+				cango = false;
+			}
+			if (!cango) {
+				sql = "Insert into `xxx`";
+				Cmd->SQL->Clear();
+				Cmd->SQL->Add(sql);
+				Cmd->Execute();
+			}
+			//*获得product_id
+			AnsiString product_id;
+			AnsiString general_product_id;
+			sql = "SELECT id, general_product_id FROM products WHERE chinese_name = '"+ StringGrid1->Cells[2][i] +"' and supplier_id = " + AnsiString(MainForm->ParentId);
+			Qry->Close();
+			Qry->SQL->Clear();
+			Qry->SQL->Add(sql);
+			Qry->Open();
+			if(Qry->RecordCount==0) {
+				ShowMessage("第"+AnsiString(i)+"行的"+StringGrid1->Cells[2][i]+"不在产品表中，是你手动添加的吧！");
+				sql = "Insert into `xxx`";
+				Cmd->SQL->Clear();
+				Cmd->SQL->Add(sql);
+				Cmd->Execute();
+			}
+			Qry->Last();
+			//产品ID
+			product_id = Qry->FieldByName("id")->AsString;
+			general_product_id = Qry->FieldByName("general_product_id")->AsInteger;
+			if(general_product_id == 0){
+				ShowMessage("第"+AnsiString(i)+"行的"+StringGrid1->Cells[2][i]+"还没有关联任何通用产品，请做关联！");
+				sql = "Insert into `xxx`";
+				Cmd->SQL->Clear();
+				Cmd->SQL->Add(sql);
+				Cmd->Execute();
+			}
+
+			//*获得purchase_price_id 、 ratio
+			AnsiString purchase_price_id;
+			AnsiString str_ratio;
+			float ratio;
+			AnsiString print_times;
+			sql = "select id, ratio, true_spec, price, print_times from purchase_prices where 1 = 1 ";
+			sql += " and supplier_id = " + AnsiString(MainForm->ParentId);
+			sql += " and seller_id = " + AnsiString(SellerId);
+			sql += " and is_used = 1 ";
+			sql += " and product_id = " + AnsiString(product_id);
+			Qry->Close();
+			Qry->SQL->Clear();
+			Qry->SQL->Add(sql);
+			Qry->Open();
+			if(Qry->RecordCount==0){
+				ShowMessage("第"+AnsiString(i)+"行的"+StringGrid1->Cells[2][i]+"不在价格表中");
+				sql = "Insert into `xxx`";
+				Cmd->SQL->Clear();
+				Cmd->SQL->Add(sql);
+				Cmd->Execute();
+			} else {
+			if(Qry->RecordCount>1){
+				ShowMessage("第"+AnsiString(i)+"行的"+StringGrid1->Cells[2][i]+"在价格表中找到2个或2个以上个价格，请改正。");
+				sql = "Insert into `xxx`";
+				Cmd->SQL->Clear();
+				Cmd->SQL->Add(sql);
+				Cmd->Execute();
+			} else {
+				Qry->First();
+				purchase_price_id = Qry->FieldByName("id")->AsString;
+				str_ratio = Qry->FieldByName("ratio")->AsString;
+				print_times = Qry->FieldByName("print_times")->AsString;
+				if(!TryStrToFloat(str_ratio, ratio)) {
+					ShowMessage("第"+AnsiString(i)+"行的"+StringGrid1->Cells[2][i]+"的进货单位与库存单位换算比值不正确，请修改后，再来此操作。");
+					sql = "Insert into `xxx`";
+					Cmd->SQL->Clear();
+					Cmd->SQL->Add(sql);
+					Cmd->Execute();
+				}
+				AnsiString get_true_spec = Qry->FieldByName("true_spec")->AsString;
+				//判断单位是否改变
+				//单位改变的话，将旧价格置为无效，数据库中查找是否有新单位对应的价格，
+				//有的话，将其置为有效，没有的话创建新价格新单位并置为有效
+				
+				if(AnsiString(current_true_spec.Trim())!= get_true_spec.Trim()){
+					ShowMessage("第"+AnsiString(i)+"行的"+StringGrid1->Cells[2][i]+"的进货规格被您修改了，影响后续操作，如果真的想改，请到stock.591order.com修改，之后来此操作。");
+					sql = "Insert into `xxx`";
+					Cmd->SQL->Clear();
+					Cmd->SQL->Add(sql);
+					Cmd->Execute();
+//					sql = "update purchase_prices set is_used = 0 where id = " + purchase_price_id;
+//					Cmd->SQL->Clear();
+//					Cmd->SQL->Add(sql);
+//					Cmd->Execute();
+//					sql = "select id, ratio, true_spec, price from purchase_prices where 1 = 1 ";
+//					sql += " and supplier_id = " + AnsiString(MainForm->ParentId);
+//					sql += " and seller_id = " + AnsiString(SellerId);
+//					sql += " and product_id = " + AnsiString(product_id);
+//					sql += " and true_spec = '"+AnsiString(current_ture_spec)+"'";
+//					Qry->Close();
+//					Qry->SQL->Clear();
+//					Qry->SQL->Add(sql);
+//					Qry->Open();
+//					if(Qry->RecordCount==0){
+//						sql = " INSERT INTO `purchase_prices` (`supplier_id`, `seller_id`, `is_used`, `true_spec`, ";
+//						sql += "`price`, `product_id`, `ratio`, `created_at`, `updated_at`, `print_times`) ";
+//						sql += " VALUES ";
+//						sql += " ("+ AnsiString(MainForm->ParentId);
+//						sql += ", " + AnsiString(SellerId);
+//						sql += ", 1, '" + AnsiString(current_ture_spec);
+//						sql += "', " + current_purchase_price;
+//						sql += ", " + AnsiString(product_id);
+//						sql += ", " + "0";
+//						sql += ", '" + Now().DateString();
+//						sql += "', '" + Now().DateString();
+//						sql += "', NULL);"
+//						Cmd->SQL->Clear();
+//						Cmd->SQL->Add(sql);
+//						Cmd->Execute();
+//						purchase_price_id = Cmd->InsertId;
+//					}else {
+//						Qry->First();
+//						purchase_price_id = Qry->FieldByName("id")->AsString;
+//						sql = "update purchase_prices set is_used = 1 where id = " + purchase_price_id;
+//						Cmd->SQL->Clear();
+//						Cmd->SQL->Add(sql);
+//						Cmd->Execute();
+//					}
+				} else {
+					sql = "update purchase_prices set price = "+AnsiString(current_purchase_price)+", print_times = print_times + 1 where id = " + purchase_price_id;
+					Cmd->SQL->Clear();
+					Cmd->SQL->Add(sql);
+					Cmd->Execute();
+				}
+			}
+			}
+			sql = " INSERT INTO `purchase_order_items` (`purchase_order_id`, `product_id`, `real_weight`, `price`, `money`, `created_at`, `updated_at`, `plan_weight`, `purchase_price_id`, `true_spec`)";
+			sql += " VALUES ( ";
+			sql += AnsiString(purchase_order_id) + ", ";
+			sql += AnsiString(product_id) + ", ";
+			sql += AnsiString(current_real_weight) + ", ";
+			sql += AnsiString(current_purchase_price) + ", ";
+			float item_money = t_real_weight*t_purchase_price;
+			sql += AnsiString(item_money) + ", ";
+			sql += "'" + AnsiString(Now().DateString()) + "', ";
+			sql += "'" + AnsiString(Now().DateString()) + "', ";
+			sql += AnsiString(current_plan_weight) + ", ";
+			sql += AnsiString(purchase_price_id);
+			sql += ",'"+AnsiString(current_true_spec)+"'";
+			sql += "); ";
+			Cmd->SQL->Clear();
+			Cmd->SQL->Add(sql);
+			Cmd->Execute();
+			AnsiString item_id = Cmd->InsertId;
+
+			//增加库存进出明细
+			sql = " INSERT INTO `order_details` (`supplier_id`, `related_company_id`, `order_id`, `detail_type`, `detail_date`, `item_id`, `product_id`, `price`, `plan_weight`, `real_weight`, `money`, `delete_flag`, `created_at`, `updated_at`, `true_spec`, `memo`) ";
+			sql += " VALUES ";
+			sql += " (";
+			sql += AnsiString(MainForm->ParentId) + ", ";
+			sql += AnsiString(SellerId) + ", ";
+			sql += AnsiString(purchase_order_id) + ", ";
+			sql += AnsiString(TypeDetailPurchase) + ", ";
+			sql += "'" + DateTimePicker1->Date.DateString() + "', ";
+			sql += AnsiString(item_id) + ", ";
+			sql += AnsiString(product_id) + ", ";
+			sql += AnsiString(current_purchase_price) + ", ";
+			sql += "'" + AnsiString(current_plan_weight) + "', ";
+			sql += AnsiString(current_real_weight) + ", ";
+			sql += AnsiString(item_money) + ", ";
+			sql += AnsiString(0) + ", ";
+			sql += "'" + Now().DateString() + "', ";
+			sql += "'" + Now().DateString() + "', ";
+			sql += "'"+AnsiString(current_true_spec)+"', ";
+			sql += "'"+Edit1->Text.Trim()+"'";
+			); ";
+			Cmd->SQL->Clear();
+			Cmd->SQL->Add(sql);
+			Cmd->Execute();
+
+			//更新库存
+			sql = " select id, real_weight from stocks where general_product_id = " + AnsiString(general_product_id);
+			sql += " and supplier_id = " + AnsiString(MainForm->ParentId);
+			sql += " and storage_id = " + AnsiString(StorageId);
+			Qry->Close();
+			Qry->SQL->Clear();
+			Qry->SQL->Add(sql);
+			Qry->Open();
+			if(Qry->RecordCount >= 2){
+				ShowMessage("第"+AnsiString(i)+"行的"+StringGrid1->Cells[2][i]+"查找到的库存大于等于2条记录，请检查更正！");
+				sql = "Insert into `xxx`";
+				Cmd->SQL->Clear();
+				Cmd->SQL->Add(sql);
+				Cmd->Execute();
+			}
+			AnsiString stock_id = "";
+			AnsiString stock_real_weight = "";
+
+			if(Qry->RecordCount == 0) {
+				//暂无该产品的库存记录，插入一条
+                sql = " INSERT INTO `stocks` ( `general_product_id`, `storage_id`, `real_weight`, `min_weight`, `last_purchase_price`, `created_at`, `updated_at`, `supplier_id`)";
+				sql += " VALUES( ";
+				sql += AnsiString(general_product_id) + ", ";
+				sql += AnsiString(StorageId) + ", ";
+				sql += AnsiString(0) + ", ";
+				sql += " NULL, ";
+				sql += AnsiString(current_purchase_price) + ", ";
+				sql += "'" + Now().DateString() + "', ";
+				sql += "'" + Now().DateString() + "', ";
+				sql += AnsiString(MainForm->ParentId) + ");";
+				Cmd->SQL->Clear();
+				Cmd->SQL->Add(sql);
+				Cmd->Execute();
+				stock_id = Cmd->InsertId;
+				stock_real_weight = "0";
+			}
+			if(Qry->RecordCount == 1){
+				Qry->First();
+				stock_id = Qry->FieldByName("id")->AsString;
+				stock_real_weight = Qry->FieldByName("real_weight")->AsString;
+			}
+			float temp_stock_real_weight = 0.0;
+			float weight_after_come_in = 0.0;
+
+			if(TryStrToFloat(stock_real_weight, temp_stock_real_weight)){
+				weight_after_come_in = temp_stock_real_weight + ratio * t_real_weight;
+			} else {
+				ShowMessage("第"+AnsiString(i)+"行的"+StringGrid1->Cells[2][i]+"查找到的库存数值有误！");
+                sql = "Insert into `xxx`";
+				Cmd->SQL->Clear();
+				Cmd->SQL->Add(sql);
+				Cmd->Execute();
+			}
+
+			sql = " update stocks set real_weight = " + AnsiString(weight_after_come_in);
+			sql += " where id = " + AnsiString(stock_id);
+			Cmd->SQL->Clear();
+			Cmd->SQL->Add(sql);
+			Cmd->Execute();
+
+		}
+
+		//提交事务
+		Cmd->Connection->Commit();
+		for(int i=1;i<=StringGrid1->ColCount;i++)
+		{
+			for(int j=1;j<=StringGrid1->RowCount;j++)
+			{
+				StringGrid1->Cells[i][j]="";
+			}
+		}
+		FromName->Text = "";
+		Label2->Caption = "";
+		ShowMessage("入库成功！");
+	}
+	catch(...)
+	{
+		//回滚事务
+		Cmd->Connection->Rollback();
+	}
+
+
+}
+//---------------------------------------------------------------------------
+
+
+void __fastcall TPurchaseOrder::Button1Click(TObject *Sender)
+{
+	float sum = 0;
+	for(unsigned i=1;i<=StringGrid1->RowCount;i++){
+		if(StringGrid1->Cells[2][i].Trim()=="") continue;
+		AnsiString current_simple_abc = StringGrid1->Cells[1][i].Trim();
+		AnsiString current_chinese_name = StringGrid1->Cells[2][i].Trim();
+		AnsiString current_plan_weight = StringGrid1->Cells[3][i].Trim();
+		AnsiString current_real_weight = StringGrid1->Cells[4][i].Trim();
+		AnsiString current_true_spec = StringGrid1->Cells[5][i].Trim();
+		AnsiString current_purchase_price = StringGrid1->Cells[6][i].Trim();
+		float t_real_weight;
+		float t_purchase_price;
+		if(current_real_weight == "") {
+			ShowMessage("第"+AnsiString(i)+"行的到货量必须填写");
+			return;
+		}
+		if(current_purchase_price == "") {
+				ShowMessage("第"+AnsiString(i)+"行的价格必须填写");
+				return;
+			}
+		if(!TryStrToFloat(current_real_weight, t_real_weight) ) {
+			ShowMessage("第"+AnsiString(i)+"行的到货量"+current_real_weight+"，请修改成数值型。");
+			return;
+		}
+		if(!TryStrToFloat(current_purchase_price, t_purchase_price)) {
+			ShowMessage("第"+AnsiString(i)+"行的价格"+current_purchase_price+"，请修改成数值型。");
+			return;
+		}
+		sum += t_real_weight * t_purchase_price;
+	}
+	Label2->Caption = FormatFloat("0.00", sum);
+}
+//---------------------------------------------------------------------------
+
